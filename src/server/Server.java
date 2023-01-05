@@ -52,30 +52,30 @@ public class Server {
                 // Read the request from the client
                 String request = in.readLine();
 
-                int idCust;
+                //int idCust = 0;
                 // Parse the request to extract the action and any relevant parameters
                 String[] requestParts = request.split(",");
                 String action = requestParts[0];
-                    if (action.equals("CHECK_CUSTOMER_EXIST"))
-                    {
-                        session.beginTransaction();
-                        Query query = session.createQuery("from database.CustomerEntity");
-                        List<CustomerEntity> customers = query.list();
-                        String name = requestParts[1];
-                        String surname = requestParts[2];
+                if (action.equals("CHECK_CUSTOMER_EXIST"))
+                {
+                    session.beginTransaction();
+                    Query query = session.createQuery("from database.CustomerEntity");
+                    List<CustomerEntity> customers = query.list();
+                    String name = requestParts[1];
+                    String surname = requestParts[2];
 
-                        for (CustomerEntity customer : customers)
-                        {
-
-                            if (customer.getName().equals(name) && customer.getSurname().equals(surname))
-                            {
-                                idCust = customer.getIdCustomer();
-                                System.out.println("CUSTOMER_EXIST,"+idCust);
-                                out.println("CUSTOMER_EXIST,"+idCust);
-                            }
+                    for (CustomerEntity customer : customers) {
+                        if (customer.getName().equals(name) && customer.getSurname().equals(surname)) {
+                            int id = customer.getIdCustomer();
+                            // Send a response to the client
+                            out.println("CUSTOMER_EXIST," + id);
+                            return;
                         }
-
                     }
+
+                    out.println("CUSTOMER_NOT_EXIST");
+
+                }
                 else if (action.equals("CREATE_CUSTOMER")) {
                     // Create a new customer with the given name and surname
                     session.beginTransaction();
@@ -84,11 +84,11 @@ public class Server {
                     CustomerEntity customer = new CustomerEntity(0, name, surname);
 
 
-                   // int idCust = customer.getIdCustomer();
+                    // int idCust = customer.getIdCustomer();
 
 
                     // Save the customer to the database
-                   idCust = (int) session.save(customer);
+                    int idCust = (int) session.save(customer);
                     session.getTransaction().commit();
                     session.close();
                     System.out.println("Id cust = " + idCust);
@@ -105,7 +105,7 @@ public class Server {
 
                     for (SittingEntity table: tables)
                     {
-                       // System.out.println(table.getSlot());
+                        // System.out.println(table.getSlot());
                         Slots slot = table.getSlot();
                         String slotString = "";
                         switch(slot)
@@ -125,11 +125,54 @@ public class Server {
                     out.println("END");
                     session.getTransaction().commit();
                     System.out.println("tables");
-                }
-                else if(action.equals("GET_AVAILABLE_TABLES"))
+                } else if (action.equals("GET_RESERVATIONS"))
+                {
+                    int customerId = Integer.parseInt(requestParts[1]);
+                    session.beginTransaction();
+                    Query query = session.createQuery("from database.ReservationEntity");
+                    List<ReservationEntity> reservations = query.list();
+
+                    List<ReservationEntity> customerReservations = new ArrayList<>();
+
+//                    if (reservations.isEmpty()) {
+//                        out.println("NO_RESERVATIONS");
+//                    } else {
+//                        for (ReservationEntity reservation : reservations) {
+//                            if (reservation.getIdClient() == customerId) {
+//                               customerReservations.add(reservation);
+//                                // out.println("RESERVATION," + reservation.getId() + "," + reservation.getIdSitting() + "," + reservation.getSlot().toString());
+//                            }
+//                        }
+//                        //out.println("END");
+//
+//                    }
+
+                    for (ReservationEntity reservation : reservations)
+                    {
+                        if (reservation.getIdClient() == customerId)
+                        {
+                            customerReservations.add(reservation);
+                        }
+                    }
+
+                    if (customerReservations.isEmpty())
+                    {
+                        out.println("CUSTOMER_HAVE_NO_RESERVATIONS");
+                    }
+                    else
+                    {
+                        for (ReservationEntity reservation : customerReservations)
+                        {
+                            out.println("RESERVATION,"+reservation.getId()+","+reservation.getIdSitting()+","+reservation.getSlot().toString());
+                        }
+                        out.println("END");
+                    }
+
+
+                } else if(action.equals("GET_AVAILABLE_TABLES"))
                 {
                     session.beginTransaction();
-                   // List<SittingEntity> availableTables = new ArrayList<>();
+                    // List<SittingEntity> availableTables = new ArrayList<>();
                     Query query = session.createQuery("from database.SittingEntity");
                     List<SittingEntity> tables = query.list();
 
@@ -168,10 +211,10 @@ public class Server {
 
                     session.beginTransaction();
 
-                        System.out.println("Jestem tutaj");
+                    System.out.println("Jestem tutaj");
                     System.out.println(customerId);
-                        ReservationEntity reservation = new ReservationEntity(0,customerId, tableId, Slots.first);
-                        session.save(reservation);
+                    ReservationEntity reservation = new ReservationEntity(0,customerId, tableId, Slots.first);
+                    session.save(reservation);
 
 
                 }

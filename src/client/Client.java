@@ -23,29 +23,40 @@ public class Client {
         String name = userIn.readLine();
         System.out.print("Enter surname: ");
         String surname = userIn.readLine();
-
         //check if a customer is in database
 
+        int idCustomer = 0 ;
+        out.println("CHECK_CUSTOMER_EXIST," + name + "," + surname);
+        String response = in.readLine();
 
-        // Create a new Customer object
-        CustomerEntity customer = new CustomerEntity(0,name, surname);
-        // Send a request to the server to create the new customer
-        out.println("CREATE_CUSTOMER," + name + "," + surname);
-
-//        String request = in.readLine();
-
-        // Parse the request to extract the action and any relevant parameters
-//        String[] requestParts = request.split(",");
-//        String action = requestParts[0];
-
-        // Read the response from the server
-       String response = in.readLine();
-       String[] responseParts = response.split(",");
+        String[] responseParts = response.split(",");
         String action = responseParts[0];
-        int idCustomer = Integer.parseInt(responseParts[1]);
-        System.out.println("Id customer is " + idCustomer);
 
-        if (action.equals("Name and surname is ok"))
+        if (action.equals("CUSTOMER_EXIST")) {
+            // Customer with the given name and surname exists on the server
+            idCustomer = Integer.parseInt(responseParts[1]);
+            System.out.println("Customer exists with ID: " + idCustomer);
+        } else if (action.equals("CUSTOMER_NOT_EXIST")) {
+            // Customer with the given name and surname does not exist on the server
+            System.out.println("Customer does not exist");
+
+            // Create a new customer with the given name and surname
+            CustomerEntity customer = new CustomerEntity(0,name, surname);
+
+            // Send a request to the server to create the new customer
+            out.println("CREATE_CUSTOMER," + name + "," + surname);
+
+            // Read the response from the server
+            response = in.readLine();
+            responseParts = response.split(",");
+            action = responseParts[0];
+            idCustomer = Integer.parseInt(responseParts[1]);
+            System.out.println("Id customer is " + idCustomer);
+        }
+
+
+
+        if (action.equals("Name and surname is ok") || action.equals("CUSTOMER_EXIST"))
         {
 
             Scanner scanner = new Scanner(System.in);
@@ -64,6 +75,7 @@ public class Client {
                 if (choice == 1)
                 {
                     out.println("GET_TABLES");
+                    System.out.println("I am here");
                     String line = in.readLine();
                     while (!line.equals("END")) {
                         String[] parts = line.split(",");
@@ -97,7 +109,34 @@ public class Client {
                 }
                 else if (choice == 4)
                 {
-//                    delete reservation
+//delete reservations
+                    out.println("GET_RESERVATIONS,"+idCustomer);
+                    //resonse from the server
+                     response = in.readLine();
+                     responseParts = response.split(",");
+                     action = responseParts[0];
+
+                     if (response.startsWith("CUSTOMER_HAVE_NO_RESERVATIONS"))
+                     {
+                         System.out.println("Customer has no reservations");
+                     }
+                     else if (response.startsWith("RESERVATION"))
+                     {
+                        while (!response.equals("END"))
+                        {
+                            int idReservation = Integer.parseInt(responseParts[1]);
+                            int idTable = Integer.parseInt(responseParts[2]);
+                            String slot = responseParts[3];
+
+
+                            System.out.println("Rezerwacja id["+ idReservation +"] idTable["+idTable+"] slot "+slot);
+
+                            response = in.readLine();
+                            responseParts = response.split(",");
+                        }
+
+                        //tutaj prosi o wybor id rezerwacji do usuniecia
+                     }
                 }
                 else if (choice == 5)
                 {
@@ -123,7 +162,7 @@ public class Client {
             }
 
         }
-       else
+        else
         {
             System.out.println("Error");
         }

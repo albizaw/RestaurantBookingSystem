@@ -50,6 +50,11 @@ public class CustomerEntity {
         this.surname = surname;
     }
 
+    public CustomerEntity()
+    {
+
+    }
+
     public CustomerEntity(int idCustomer, String name, String surname) {
         this.idCustomer = idCustomer;
         this.name = name;
