@@ -63,11 +63,10 @@ public class Client {
             while(true)
             {
                 System.out.println("1. List All Tables in Restaurant");
-                System.out.println("2. Make reservation");
-                System.out.println("3. Update reservation");
+                System.out.println("2. List Available Tables in Restaurant");
+                System.out.println("3. Make reservation");
                 System.out.println("4. Cancel reservation");
-                System.out.println("5. List Available Tables in Restaurant");
-                System.out.println("6. Exit");
+                System.out.println("5. Exit");
                 System.out.println("Enter your choice: ");
 
                 int choice = scanner.nextInt();
@@ -91,7 +90,7 @@ public class Client {
                     System.out.print("cos tam");
 
                 }
-                else if(choice == 2)
+                else if(choice == 3)
                 {
 
 
@@ -102,10 +101,6 @@ public class Client {
 
                     out.println("MAKE_RESERVATION," + idCustomer + ","+ tableId);
 
-                }
-                else if (choice == 3)
-                {
-//                    update reservation
                 }
                 else if (choice == 4)
                 {
@@ -136,9 +131,19 @@ public class Client {
                         }
 
                         //tutaj prosi o wybor id rezerwacji do usuniecia
+                         System.out.print("Enter reservation id: ");
+                         int idReservation = scanner.nextInt();
+
+                         out.println("DELETE_RESERVATION,"+idReservation+","+idCustomer);
+                         response = in.readLine();
+                         if (response.equals("RESERVATION_NOT_FOUND")) {
+                             System.out.println("Reservation not found.");
+                         } else if (response.equals("RESERVATION_DELETED")) {
+                             System.out.println("Reservation deleted.");
+                         }
                      }
                 }
-                else if (choice == 5)
+                else if (choice == 2)
                 {
                     out.println("GET_AVAILABLE_TABLES");
                     String line = in.readLine();
@@ -155,7 +160,7 @@ public class Client {
                     }
                     System.out.println("cos tam");
                 }
-                else if(choice == 6)
+                else if(choice == 5)
                 {
                     break;
                 }

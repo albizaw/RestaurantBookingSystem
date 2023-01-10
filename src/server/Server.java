@@ -64,16 +64,25 @@ public class Server {
                     String name = requestParts[1];
                     String surname = requestParts[2];
 
+                    int id = 0;
                     for (CustomerEntity customer : customers) {
                         if (customer.getName().equals(name) && customer.getSurname().equals(surname)) {
-                            int id = customer.getIdCustomer();
+                             id = customer.getIdCustomer();
                             // Send a response to the client
-                            out.println("CUSTOMER_EXIST," + id);
-                            return;
+                            //out.println("CUSTOMER_EXIST," + id);
+                            //return;
                         }
                     }
+                    if (id != 0)
+                    {
+                        out.println("CUSTOMER_EXIST," + id);
+                    }
+                    else
+                    {
+                        out.println("CUSTOMER_NOT_EXIST");
+                    }
 
-                    out.println("CUSTOMER_NOT_EXIST");
+
 
                 }
                 else if (action.equals("CREATE_CUSTOMER")) {
@@ -168,6 +177,32 @@ public class Server {
                         out.println("END");
                     }
 
+
+                } else if (action.equals("DELETE_RESERVATION"))
+                {
+                    session.beginTransaction();
+                    Query query = session.createQuery("from database.ReservationEntity");
+                    List<ReservationEntity> reservations = query.list();
+                    int customerId = Integer.parseInt(requestParts[2]);
+                    int reservationId = Integer.parseInt(requestParts[1]);
+
+
+                    boolean found = false;
+                    for (ReservationEntity reservation:reservations)
+                    {
+                        if (reservation.getId() == reservationId && reservation.getIdClient() == customerId)
+                        {
+                            session.delete(reservation);
+                            session.getTransaction().commit();
+                            out.println("RESERVATION_DELETED");
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        out.println("RESERVATION_NOT_FOUND");
+                    }
 
                 } else if(action.equals("GET_AVAILABLE_TABLES"))
                 {

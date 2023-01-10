@@ -22,8 +22,8 @@ public class Main
        // CustomerEntity customer = new CustomerEntity(0,"Jankos","Ziarkowski");
       //  session.save(customer);
 
-        SittingEntity sitting = new SittingEntity(0,2,false,Slots.first);
-        SittingEntity sitting1 = new SittingEntity(0,4,true,Slots.third);
+        SittingEntity sitting = new SittingEntity(0,3,false,Slots.second);
+        SittingEntity sitting1 = new SittingEntity(0,5,true,Slots.third);
         session.save(sitting);
         session.save(sitting1);
         //ReservationEntity reservation = new ReservationEntity(0,customer.getIdCustomer(),sitting.getId(),sitting.getSlot());
